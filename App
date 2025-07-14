@@ -1,1 +1,132 @@
+import SwiftUI
+import SafariServices
+
+// 1. SafariView: wraps SFSafariViewController
+struct SafariView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = false
+        return SFSafariViewController(url: url, configuration: config)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
+        // no-op
+    }
+}
+
+struct ContentView: View {
+    // your two URLs
+    let remoteURL = URL(string: "https://www.merit.accu-dose.com")!
+    let localURL  = URL(string: "http://192.168.4.1")!
+    
+    // account deletion URL and tech support number
+    let accountDeletionURL = URL(string: "https://www.accu-dose.com/account-deletion")!
+    let techSupportNumber = "877-770-8277"
+
+    // sheet & alert state
+    @State private var showingSafari: Bool = false
+    @State private var safariURL: URL?
+    @State private var showingTechSupportAlert: Bool = false
+
+    var body: some View {
+        ZStack {
+            // background image
+            Image("Merit Monitoring Background Image")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                Spacer()
+
+                // CONNECT button
+                Button("Connect") {
+                    safariURL = remoteURL
+                    showingSafari = true
+                }
+                .buttonStyle(GradientButtonStyle(colors: [Color.orange, Color.red]))
+
+                // LOCAL button
+                Button("Local") {
+                    safariURL = localURL
+                    showingSafari = true
+                }
+                .buttonStyle(GradientButtonStyle(colors: [Color.blue, Color.teal]))
+
+                // MORE menu button
+                Menu {
+                    Button("Tech Support") {
+                        showingTechSupportAlert = true
+                    }
+                    Button("Account Deletion") {
+                        safariURL = accountDeletionURL
+                        showingSafari = true
+                    }
+                } label: {
+                    Text("More")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.purple, Color.blue]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .foregroundColor(.white)
+                        .cornerRadius(25)
+                        .shadow(color: Color.purple.opacity(0.4), radius: 8, x: 0, y: 4)
+                }
+
+            }
+            .padding(.horizontal, 50)
+            .padding(.bottom, 40)
+        }
+        // Safari sheet
+        .sheet(isPresented: $showingSafari) {
+            if let url = safariURL {
+                SafariView(url: url)
+                    .edgesIgnoringSafeArea(.all)
+            }
+        }
+        // Tech Support alert
+        .alert(isPresented: $showingTechSupportAlert) {
+            Alert(
+                title: Text("Tech Support"),
+                message: Text("Please call: \(techSupportNumber)"),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+}
+
+// reusable gradient button style
+struct GradientButtonStyle: ButtonStyle {
+    let colors: [Color]
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .background(
+                LinearGradient(
+                    gradient: .init(colors: colors),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .foregroundColor(.white)
+            .cornerRadius(25)
+            .shadow(color: colors.first!.opacity(0.4), radius: 8, x: 0, y: 4)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
 
