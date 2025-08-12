@@ -21,14 +21,14 @@ struct ContentView: View {
     let remoteURL = URL(string: "https://www.merit.accu-dose.com")!
     let localURL  = URL(string: "http://192.168.4.1")!
     
-    // account deletion URL and tech support number
-    let accountDeletionURL = URL(string: "https://www.accu-dose.com/account-deletion")!
+    // tech support number
     let techSupportNumber = "877-770-8277"
 
     // sheet & alert state
     @State private var showingSafari: Bool = false
     @State private var safariURL: URL?
     @State private var showingTechSupportAlert: Bool = false
+    @State private var showingAccountDeletion: Bool = false
 
     var body: some View {
         ZStack {
@@ -61,8 +61,7 @@ struct ContentView: View {
                         showingTechSupportAlert = true
                     }
                     Button("Account Deletion") {
-                        safariURL = accountDeletionURL
-                        showingSafari = true
+                        showingAccountDeletion = true
                     }
                 } label: {
                     Text("More")
@@ -98,6 +97,25 @@ struct ContentView: View {
                 message: Text("Please call: \(techSupportNumber)"),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        // Account Deletion page
+        .sheet(isPresented: $showingAccountDeletion) {
+            AccountDeletionView()
+        }
+    }
+}
+
+struct AccountDeletionView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Account Deletion")
+                    .font(.title)
+                Text("To delete your Merit Monitoring account, please contact tech support at 877-770-8277. Once your request is received, your account and associated data will be permanently removed.")
+                    .font(.body)
+                Spacer()
+            }
+            .padding()
         }
     }
 }
